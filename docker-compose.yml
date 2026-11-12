@@ -1,0 +1,39 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-newshub}
+      MYSQL_USER: ${MYSQL_USER:-newshub}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-newshub_dev}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_dev}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  wordpress:
+    image: wordpress:php8.2-apache
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-newshub}
+      WORDPRESS_DB_USER: ${MYSQL_USER:-newshub}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:-newshub_dev}
+      NEWSHUB_REVALIDATION_URL: ${NEWSHUB_REVALIDATION_URL:-}
+      NEWSHUB_REVALIDATION_SECRET: ${NEWSHUB_REVALIDATION_SECRET:-}
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./wp-plugin/newshub-api:/var/www/html/wp-content/plugins/newshub-api
+
+volumes:
+  db_data:
+  wordpress_data:

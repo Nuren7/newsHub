@@ -1,0 +1,13 @@
+{
+  "name": "newshub/newshub-api",
+  "description": "Headless publishing API for NewsHub.",
+  "type": "wordpress-plugin",
+  "require": {
+    "php": ">=8.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "NewsHub\\Api\\": "src/"
+    }
+  }
+}
